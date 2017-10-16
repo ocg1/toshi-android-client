@@ -59,6 +59,9 @@
                 <data android:pathPattern="/add/@.*"/>
                 <data android:pathPattern="/pay/@.*"/>
             </intent-filter>
+
+            <meta-data android:name="android.app.shortcuts"
+                       android:resource="@xml/shortcuts" />
         </activity>
 
         <activity android:name="com.toshi.view.activity.MainActivity"

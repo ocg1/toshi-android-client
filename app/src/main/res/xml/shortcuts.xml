@@ -1,0 +1,15 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="compose"
+        android:enabled="true"
+        android:icon="@drawable/ic_action_me"
+        android:tint="@color/colorPrimary"
+        android:shortcutShortLabel="@string/shortcut__me">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="org.toshi.debug"
+            android:targetClass="com.toshi.view.activity.MainActivity">
+            <extra android:name="active_tab" android:value="4" />
+        </intent>
+    </shortcut>
+</shortcuts>
