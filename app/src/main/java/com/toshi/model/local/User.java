@@ -20,6 +20,7 @@ package com.toshi.model.local;
 
 import com.squareup.moshi.Json;
 import com.toshi.manager.ToshiManager;
+import com.toshi.view.adapter.SearchAppAdapter;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -137,5 +138,9 @@ public class User extends RealmObject implements ToshiEntity {
     @Override
     public int hashCode() {
         return getToshiId().hashCode();
+    }
+
+    public @SearchAppAdapter.ViewType int getViewType() {
+        return SearchAppAdapter.ITEM;
     }
 }

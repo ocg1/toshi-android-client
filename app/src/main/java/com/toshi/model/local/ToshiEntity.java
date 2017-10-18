@@ -17,6 +17,8 @@
 
 package com.toshi.model.local;
 
+import com.toshi.view.adapter.SearchAppAdapter;
+
 public interface ToshiEntity {
     String getToshiId();
     String getAvatar();
@@ -25,4 +27,5 @@ public interface ToshiEntity {
     Double getAverageRating();
     String getAbout();
     int getReviewCount();
+    @SearchAppAdapter.ViewType int getViewType();
 }

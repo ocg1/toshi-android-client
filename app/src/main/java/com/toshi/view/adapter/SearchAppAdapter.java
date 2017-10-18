@@ -25,7 +25,7 @@ import android.view.ViewGroup;
 
 import com.toshi.R;
 import com.toshi.model.local.Dapp;
-import com.toshi.model.network.App;
+import com.toshi.model.local.ToshiEntity;
 import com.toshi.view.adapter.listeners.OnItemClickListener;
 import com.toshi.view.adapter.viewholder.SearchAppDappViewHolder;
 import com.toshi.view.adapter.viewholder.ToshiEntityViewHolder;
@@ -43,17 +43,17 @@ public class SearchAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public final static int ITEM = 1;
     public final static int DAPP_LINK = 3;
 
-    private List<App> apps;
+    private List<ToshiEntity> toshiEntities;
     private Dapp dapp;
-    private OnItemClickListener<App> listener;
+    private OnItemClickListener<ToshiEntity> listener;
     private OnItemClickListener<Dapp> dappLaunchClicked;
 
     public SearchAppAdapter() {
-        this.apps = new ArrayList<>();
+        this.toshiEntities = new ArrayList<>();
         addExtras();
     }
 
-    public SearchAppAdapter setOnItemClickListener(final OnItemClickListener<App> listener) {
+    public SearchAppAdapter setOnItemClickListener(final OnItemClickListener<ToshiEntity> listener) {
         this.listener = listener;
         return this;
     }
@@ -63,16 +63,16 @@ public class SearchAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return this;
     }
 
-    public void addItems(final List<App> apps) {
-        this.apps.clear();
-        this.apps.addAll(apps);
+    public void addItems(final List<ToshiEntity> apps) {
+        this.toshiEntities.clear();
+        this.toshiEntities.addAll(apps);
         addExtras();
         this.notifyDataSetChanged();
     }
 
     private void addExtras() {
         if (this.dapp == null) return;
-        this.apps.add(dapp);
+        this.toshiEntities.add(dapp);
     }
 
     public void addDapp(final String DappAddress) {
@@ -81,17 +81,16 @@ public class SearchAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public void removeDapp() {
         if (this.dapp == null) return;
-
-        this.apps.remove(this.dapp);
+        this.toshiEntities.remove(this.dapp);
         this.dapp = null;
     }
 
-    public App getFirstApp() {
-        if (this.apps == null || this.apps.size() <= 1) {
+    public ToshiEntity getFirstApp() {
+        if (this.toshiEntities == null || this.toshiEntities.size() <= 1) {
             return null;
         }
         // Header is always at position 0
-        return this.apps.get(1);
+        return this.toshiEntities.get(1);
     }
 
     @Override
@@ -123,10 +122,10 @@ public class SearchAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case ITEM:
             default: {
                 final ToshiEntityViewHolder vh = (ToshiEntityViewHolder) holder;
-                final App app = this.apps.get(position);
+                final ToshiEntity toshiEntity = this.toshiEntities.get(position);
 
-                vh.setToshiEntity(app)
-                        .setOnClickListener(this.listener, app);
+                vh.setToshiEntity(toshiEntity)
+                        .setOnClickListener(this.listener, toshiEntity);
                 break;
             }
         }
@@ -134,20 +133,20 @@ public class SearchAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public @ViewType int getItemViewType(int position) {
-        return this.apps.get(position).getViewType();
+        return this.toshiEntities.get(position).getViewType();
     }
 
     @Override
     public int getItemCount() {
-        return this.apps.size();
+        return this.toshiEntities.size();
     }
 
     // The list always has one header and that will be the first item in the list
     public boolean isEmpty() {
-        return this.apps.size() <= 1;
+        return this.toshiEntities.size() <= 1;
     }
 
     public int getNumberOfApps() {
-        return this.apps.size();
+        return this.toshiEntities.size();
     }
 }

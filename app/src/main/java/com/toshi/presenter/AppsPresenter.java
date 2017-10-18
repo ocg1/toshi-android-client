@@ -44,10 +44,11 @@ import com.toshi.view.adapter.listeners.OnItemClickListener;
 import com.toshi.view.custom.HorizontalLineDivider;
 import com.toshi.view.fragment.toplevel.AppsFragment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import rx.Observable;
+import rx.Single;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -220,9 +221,10 @@ public class AppsPresenter implements Presenter<AppsFragment>{
         final Subscription enterSub =
                 RxTextView.editorActions(this.fragment.getBinding().search)
                 .filter(event -> event == IME_ACTION_DONE)
+                .toCompletable()
                 .subscribe(
-                        __ -> this.handleSearchPressed(),
-                        t -> LogUtil.e(getClass(), t.toString())
+                        this::handleSearchPressed,
+                        throwable -> LogUtil.e(getClass(), throwable.toString())
                 );
 
         updateViewState();
@@ -232,38 +234,35 @@ public class AppsPresenter implements Presenter<AppsFragment>{
 
     private void runSearchQuery(final String query) {
         final Subscription sub =
-            Observable.just(query)
+            Single.just(query)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(__ -> updateViewState())
-                .doOnNext(this::tryRenderDappLink)
-                .observeOn(Schedulers.io())
-                .flatMap(this::searchApps)
+                .doOnSuccess(__ -> updateViewState())
+                .doOnSuccess(this::tryRenderDappLink)
+                .flatMap(this::searchAppsAndUsers)
+                .map(users -> new ArrayList<ToshiEntity>(users))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        this::handleAppSearchResponse,
-                        this::handleAppSearchError
+                        toshiEntities -> getSearchAdapter().addItems(toshiEntities),
+                        throwable -> LogUtil.exception(getClass(), "Error while searching for app", throwable)
                 );
+
         this.subscriptions.add(sub);
     }
 
     private void handleSearchPressed() {
         if (getSearchAdapter() == null || getSearchAdapter().getNumberOfApps() != 1) return;
-        final App appToLaunch = getSearchAdapter().getFirstApp();
-        if (appToLaunch == null) return;
+        final ToshiEntity appToLaunch = getSearchAdapter().getFirstApp();
         if (appToLaunch instanceof Dapp) {
             this.handleDappLaunch((Dapp) appToLaunch);
         }
     }
 
-    private Observable<List<App>> searchApps(final String searchString) {
+    private Single<List<User>> searchAppsAndUsers(final String query) {
         return BaseApplication
                 .get()
-                .getAppsManager()
-                .searchApps(searchString);
-    }
-
-    private void handleAppSearchError(final Throwable throwable) {
-        LogUtil.exception(getClass(), "Error while searching for app", throwable);
+                .getRecipientManager()
+                .searchOnlineUsers(query);
     }
 
     private void updateViewState() {
@@ -287,10 +286,6 @@ public class AppsPresenter implements Presenter<AppsFragment>{
         }
 
         getSearchAdapter().addDapp(searchString);
-    }
-
-    private void handleAppSearchResponse(final List<App> apps) {
-        getSearchAdapter().addItems(apps);
     }
 
     private SearchAppAdapter getSearchAdapter() {
