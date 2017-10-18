@@ -141,8 +141,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
         final HorizontalLineDivider lineDivider =
                 new HorizontalLineDivider(ContextCompat.getColor(this.fragment.getContext(), R.color.divider))
                         .setRightPadding(dividerRightPadding)
-                        .setLeftPadding(dividerLeftPadding)
-                        .setSkipFirst(true);
+                        .setLeftPadding(dividerLeftPadding);
         searchAppList.addItemDecoration(lineDivider);
     }
 
