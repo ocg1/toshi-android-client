@@ -24,6 +24,7 @@ import com.toshi.view.BaseApplication;
 
 import java.util.List;
 
+import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
@@ -86,6 +87,16 @@ public class ContactStore {
             return allContacts;
         })
         .subscribeOn(Schedulers.io());
+    }
 
+    public Single<List<Contact>> search(final String value) {
+        return Single.fromCallable(() -> {
+            final Realm realm = BaseApplication.get().getRealm();
+            final RealmQuery<Contact> query = realm.where(Contact.class);
+            query.contains("user.username", value, Case.INSENSITIVE);
+            final List<Contact> result = realm.copyFromRealm(query.findAll());
+            realm.close();
+            return result;
+        });
     }
 }

@@ -27,6 +27,7 @@ import android.view.View;
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.toshi.BuildConfig;
 import com.toshi.R;
+import com.toshi.model.local.Contact;
 import com.toshi.model.local.User;
 import com.toshi.util.KeyboardUtil;
 import com.toshi.util.LogUtil;
@@ -148,8 +149,13 @@ public final class UserSearchPresenter
     }
 
     private void runSearchQuery(final String query) {
+        final Single<List<User>> userSingle =
+                this.viewType == UserSearchType.PROFILE
+                        ? searchContacts(query)
+                        : searchOnlineUsers(query);
+
         final Subscription searchSub =
-                searchOnlineUsers(query)
+                userSingle
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         this::handleSearchResult,
@@ -164,6 +170,18 @@ public final class UserSearchPresenter
                 .get()
                 .getRecipientManager()
                 .searchOnlineUsers(query);
+    }
+
+    private Single<List<User>> searchContacts(final String query) {
+        return BaseApplication
+                .get()
+                .getRecipientManager()
+                .searchContacts(query)
+                .toObservable()
+                .flatMapIterable(contacts -> contacts)
+                .map(Contact::getUser)
+                .toList()
+                .toSingle();
     }
 
     private void handleSearchResult(final List<User> users) {
